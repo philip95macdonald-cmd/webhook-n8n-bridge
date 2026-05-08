@@ -1,0 +1,16 @@
+name = "webhook-n8n-bridge"
+compatibility_date = "2024-01-01"
+main = "src/webhook.js"
+
+# Find your account_id at: https://dash.cloudflare.com → right sidebar
+account_id = "your-cloudflare-account-id"
+
+# Secrets (set via `wrangler secret put`, not here):
+#   WEBHOOK_SECRET    shared HMAC secret with your sender
+#   N8N_WEBHOOK_URL   your n8n webhook node URL
+
+# Optional: add this block to enable 24h deduplication via KV
+# Run `wrangler kv:namespace create IDEMPOTENCY_KV` to get the ID
+# [[kv_namespaces]]
+# binding = "IDEMPOTENCY_KV"
+# id      = "paste-your-kv-namespace-id-here"

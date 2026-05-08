@@ -28,28 +28,49 @@ Auto-detected from which header is present.
 
 ## Setup
 
-**1. n8n** — add a Webhook node, copy the URL.
+**1. n8n** — add a Webhook node, set authentication to None (the bridge handles it), copy the URL.
 
-**2. Deploy**
+**2. Clone and configure**
+```bash
+git clone https://github.com/philip95macdonald-cmd/webhook-n8n-bridge
+cd webhook-n8n-bridge
+cp wrangler.toml.example wrangler.toml
+# Edit wrangler.toml: set your account_id
+```
+
+**3. Deploy**
 ```bash
 npm install -g wrangler
-wrangler secret put WEBHOOK_SECRET    # shared with your sender
+wrangler login
+wrangler secret put WEBHOOK_SECRET    # shared secret with your sender
 wrangler secret put N8N_WEBHOOK_URL   # your n8n webhook node URL
 wrangler deploy src/webhook.js
 ```
 
-**3.** Point your sender at the Worker URL.
+**4. Validate**
+```bash
+# Replace URL and SECRET with yours
+curl -s -X POST https://your-worker.workers.dev \
+  -H "Content-Type: application/json" \
+  -H "x-webhook-signature: $(echo -n '{"type":"test"}' | openssl dgst -sha256 -hmac 'YOUR_SECRET' -binary | xxd -p -c 256)" \
+  -d '{"type":"test"}' | jq .
+# Expected: forwarded to n8n, n8n returns 200
+```
 
-## Idempotency
+**5.** Point your sender at the Worker URL.
 
-Bind a Cloudflare KV namespace as `IDEMPOTENCY_KV` and duplicate event IDs within 24h are dropped before forwarding. Without it, dedup in n8n instead.
+## Idempotency (optional)
+
+Bind a Cloudflare KV namespace as `IDEMPOTENCY_KV` and duplicate event IDs within 24h are dropped before forwarding. Without it, handle deduplication in n8n instead.
 
 ```toml
-# wrangler.toml
+# wrangler.toml — add this block
 [[kv_namespaces]]
 binding = "IDEMPOTENCY_KV"
 id      = "your-kv-namespace-id"
 ```
+
+Create the namespace: `wrangler kv:namespace create IDEMPOTENCY_KV` — it prints the ID to paste above.
 
 ## What n8n receives
 
@@ -65,6 +86,12 @@ Original event payload plus `_meta`:
   }
 }
 ```
+
+## You know it worked when
+
+- The curl test above does not return a 401 or 403 (signature valid)
+- Your n8n workflow execution log shows the test event within seconds
+- Sending the same event twice in quick succession triggers the n8n workflow only once (with KV bound)
 
 ## License
 
