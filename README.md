@@ -1,4 +1,4 @@
-[![CI](https://github.com/philip95macdonald-cmd/webhook-n8n-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/philip95macdonald-cmd/webhook-n8n-bridge/actions)
+[![CI](https://github.com/martechbuilder/webhook-n8n-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/martechbuilder/webhook-n8n-bridge/actions)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 # webhook-n8n-bridge
@@ -32,7 +32,7 @@ Auto-detected from which header is present.
 
 **2. Clone and configure**
 ```bash
-git clone https://github.com/philip95macdonald-cmd/webhook-n8n-bridge
+git clone https://github.com/martechbuilder/webhook-n8n-bridge
 cd webhook-n8n-bridge
 cp wrangler.toml.example wrangler.toml
 # Edit wrangler.toml: set your account_id
